@@ -132,21 +132,38 @@ public class DivideAndConquerIntegerArrays {
 	 * of the segment.
 	 */
 	
-	private int [] maximumIncreasingSegment(int first, int last) {
-        if (first == last) return new int[]{first, last};
-        int mid = (first + last) / 2;
-        int[] left = maximumIncreasingSegment(first, mid);
-        int[] right = maximumIncreasingSegment(mid + 1, last);
-        int[] best = (left[1]-left[0] >= right[1]-right[0]) ? left : right;
-        if (numbers.get(mid) < numbers.get(mid + 1)) {
-                int leftStart = mid;
-                while (leftStart > first && numbers.get(leftStart-1) < numbers.get(leftStart)) leftStart--;
-                int rightEnd = mid + 1;
-                while (rightEnd < last && numbers.get(rightEnd) < numbers.get(rightEnd+1)) rightEnd++;
-                int[] combined = new int[]{leftStart, rightEnd};
-                if (combined[1]-combined[0] > best[1]-best[0]) best = combined;
-        }
-        
-		return best;
+private int expandLeft(int pos, int first) {
+    if (pos <= first) return first;
+
+    if (numbers.get(pos - 1) <= numbers.get(pos)) {
+        return expandLeft(pos - 1, first);
+    }
+
+    return pos;
+}
+
+private int expandRight(int pos, int last) {
+    if (pos >= last) return last;
+
+    if (numbers.get(pos) <= numbers.get(pos + 1)) {
+        return expandRight(pos + 1, last);
+    }
+
+    return pos;
+}
+
+private int[] maximumIncreasingSegment(int first, int last) {
+    if (first == last) return new int[]{first, last};
+    int mid = (first + last) / 2;
+    int[] left = maximumIncreasingSegment(first, mid);
+    int[] right = maximumIncreasingSegment(mid + 1, last);
+    int[] best = (left[1]-left[0] >= right[1]-right[0]) ? left : right;
+    if (numbers.get(mid) <= numbers.get(mid + 1)) {
+        int leftStart = expandLeft(mid, first);
+        int rightEnd = expandRight(mid + 1, last);
+        int[] combined = new int[]{leftStart, rightEnd};
+        if (combined[1]-combined[0] > best[1]-best[0]) best = combined;
+    }
+    return best;
 }
 }
